@@ -15,8 +15,12 @@ public interface PlayerService {
     PlayerResponse getPlayerById(Long playerId);
     Page<PlayerResponse> getPlayers(Pageable pageable);
     ResponseEntity<String> deletePlayerById(Long playerId);
-    List<PlayerDTO> searchPlayerByRole(String role);
+  //  List<PlayerDTO> searchPlayerByRole(String role);
     PlayerResponse updatePlayer(Long playerId, @Valid PlayerRequest playerRequest);
     PlayerResponse partialUpdatePlayer(Long playerId, PlayerRequest playerRequest);
-    List<PlayerDTO> searchPlayers(String keywords);
+    //List<PlayerDTO> searchPlayers(String keywords);
+
+    List<PlayerDTO> searchPlayersByKeywords(List<String> keywordList);
+
+    List<PlayerDTO> searchPlayerByRole(String role);
 }

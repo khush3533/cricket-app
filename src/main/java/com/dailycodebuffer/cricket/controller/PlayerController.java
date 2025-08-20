@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -52,20 +54,6 @@ public class PlayerController {
         return playerService.deletePlayerById(playerId); // Already returns ResponseEntity
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<PlayerResponse>> searchPlayer(@RequestParam("role") String role) {
-        List<PlayerDTO> projections = playerService.searchPlayerByRole(role);
-        List<PlayerResponse> playerResponses = projections.stream()
-                .map(p -> {
-                    PlayerResponse response = new PlayerResponse();
-                    response.setName(p.getName());
-
-                    return response;
-                })
-                .toList();
-
-        return new ResponseEntity<>(playerResponses, HttpStatus.OK);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<PlayerResponse> updatePlayer(
@@ -81,8 +69,22 @@ public class PlayerController {
         return new ResponseEntity<>(updatedPlayer, HttpStatus.OK);
     }
 
-    @GetMapping("/player/search")
-    public List<PlayerDTO> searchPlayer(@RequestParam String keywords) {
-        return playerService.searchPlayers(keywords);
+    @GetMapping("/search")
+    public ResponseEntity<List<PlayerDTO>> searchPlayers(
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) String keywords) {
+
+        List<PlayerDTO> results;
+
+        if (role != null) {
+            results = playerService.searchPlayerByRole(role);
+        } else if (keywords != null) {
+            List<String> keywordList = Arrays.asList(keywords.split(","));
+            results = playerService.searchPlayersByKeywords(keywordList);
+        } else {
+            results = new ArrayList<>();
+        }
+
+        return ResponseEntity.ok(results);
     }
 }

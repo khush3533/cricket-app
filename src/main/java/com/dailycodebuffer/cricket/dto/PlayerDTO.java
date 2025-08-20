@@ -1,20 +1,9 @@
 package com.dailycodebuffer.cricket.dto;
 
-public class PlayerDTO {
+public interface PlayerDTO {
 
-
-                private String name;
-
-                public PlayerDTO(String name) {
-                        this.name = name;
-                }
-
-                public String getName() {
-                        return name;
-                }
-
-                public void setName(String name) {
-                        this.name = name;
-                }
+    Long getPlayerId();
+    String getName();
+    String getRole();
         }
 

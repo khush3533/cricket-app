@@ -101,10 +101,7 @@ public class PlayerServiceImpl implements PlayerService{
        return ResponseEntity.ok("Player deleted successfully!");
     }
 
-    @Override
-    public List<PlayerDTO> searchPlayerByRole(String role) {
-        return playerRepository.findAllByRole(role);
-    }
+
 
     @Override
     public PlayerResponse updatePlayer(Long playerId, PlayerRequest playerRequest) {
@@ -160,26 +157,40 @@ public class PlayerServiceImpl implements PlayerService{
     }
 
     @Override
-    public List<PlayerDTO> searchPlayers(String keywords) {
-        CriteriaBuilder cb=entityManager.getCriteriaBuilder();
-        CriteriaQuery<PlayerDTO> cq=cb.createQuery(PlayerDTO.class);
-        Root<PlayerEntity> root=cq.from(PlayerEntity.class);
+    public List<PlayerDTO> searchPlayersByKeywords(List<String> keywordList) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<PlayerEntity> cq = cb.createQuery(PlayerEntity.class);
+        Root<PlayerEntity> player = cq.from(PlayerEntity.class);
 
-        cq.select(cb.construct(PlayerDTO.class,root.get("name")));
-        String[] keywordArray=keywords.split(",");
-        List<Predicate> predicates=new ArrayList<>();
-
-        for(String keyword:keywordArray){
-            keyword=keyword.trim();
-            predicates.add(cb.or(
-                    cb.like(cb.lower(root.get("name")),"%"+keyword.toLowerCase()+"%"),
-            cb.like(cb.lower(root.get("role")), "%" + keyword.toLowerCase() + "%")
-            ));
+        List<Predicate> predicates = new ArrayList<>();
+        for (String keyword : keywordList) {
+            Predicate nameLike = cb.like(player.get("name"), "%" + keyword + "%");
+            Predicate roleLike = cb.like(player.get("role"), "%" + keyword + "%");
+            predicates.add(cb.or(nameLike, roleLike));
         }
 
         cq.where(cb.or(predicates.toArray(new Predicate[0])));
+        List<PlayerEntity> result = entityManager.createQuery(cq).getResultList();
 
-        return entityManager.createQuery(cq).getResultList();
+        // Map to projection manually
+        List<PlayerDTO> projectedResult = new ArrayList<>();
+        for (PlayerEntity p : result) {
+            projectedResult.add(new PlayerDTO() {
+                @Override
+                public Long getPlayerId() { return p.getPlayerId(); }
+                @Override
+                public String getName() { return p.getName(); }
+                @Override
+                public String getRole() { return p.getRole(); }
+            });
+        }
+
+        return projectedResult;
+    }
+
+    @Override
+    public List<PlayerDTO> searchPlayerByRole(String role) {
+        return playerRepository.findAllByRole(role);
     }
 
 

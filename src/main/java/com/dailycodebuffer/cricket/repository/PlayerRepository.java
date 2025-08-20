@@ -12,8 +12,7 @@ import java.util.List;
 @Repository
 public interface PlayerRepository extends JpaRepository<PlayerEntity, Long> {
 
-    @Query("SELECT new com.dailycodebuffer.cricket.dto.PlayerDTO(p.name) FROM PlayerEntity p WHERE p.role = :role")
-    List<PlayerDTO> findAllByRole(@Param("role") String role);
+    List<PlayerDTO> findAllByRole(String role);
 
 
 
